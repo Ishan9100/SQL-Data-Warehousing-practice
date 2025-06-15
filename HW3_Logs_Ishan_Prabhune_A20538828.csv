@@ -1,0 +1,227 @@
+2024-02-25 20:15:07.865292	root[root] @ localhost [::1]	22	1	Query	WITH step1_cte AS (\
+SELECT /* ++A20538828++HW3 */\
+	GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '1') AS SeatNumber, StudentID1 AS StudentID\
+FROM self_formed_group\
+UNION ALL\
+\
+SELECT \
+	GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '2') AS SeatNumber, StudentID2\
+FROM self_formed_group\
+UNION ALL\
+\
+SELECT \
+	GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '3') AS SeatNumber, StudentID3\
+FROM self_formed_group\
+),\
+step3_cte AS (\
+SELECT \
+	GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '1') AS SeatNumber, StudentID1 AS StudentID\
+FROM self_formed_group\
+WHERE StudentID1 IS NOT NULL\
+UNION ALL\
+\
+SELECT \
+	GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '2') AS SeatNumber, StudentID2\
+FROM self_formed_group\
+WHERE StudentID2 IS NOT NULL\
+UNION ALL\
+\
+SELECT \
+	GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '3') AS SeatNumber, StudentID3\
+FROM self_formed_group\
+WHERE StudentID3 IS NOT NULL\
+),\
+step4_cte AS (\
+SELECT \
+	cr.StudentID, ROW_NUMBER() OVER (ORDER BY RAND()) AS AllocationID\
+FROM class_roster cr \
+LEFT JOIN (\
+            SELECT \
+		StudentID1 AS StudentID FROM self_formed_group\
+            UNION\
+            SELECT \
+		StudentID2 FROM self_formed_group\
+            UNION\
+            SELECT \
+		StudentID3 FROM self_formed_group\
+) AS sfg ON cr.StudentID = sfg.StudentID\
+WHERE Sfg.StudentID IS NULL\
+),\
+step5_cte AS (\
+SELECT \
+	GroupNo, SeatNumber, ROW_NUMBER() OVER (ORDER BY SeatNumber) AS AllocationID\
+FROM step1_cte\
+WHERE StudentID IS NULL\
+),\
+step6_cte AS (\
+SELECT \
+	step5_cte.GroupNo, step5_cte.SeatNumber, step4_cte.StudentID\
+FROM step5_cte\
+JOIN step4_cte ON step5_cte.AllocationID = step4_cte.AllocationID\
+),\
+CombinedGroups AS (\
+SELECT \
+	GroupNo, StudentID, 'self' AS AssignType\
+FROM step3_cte\
+WHERE StudentID IS NOT NULL\
+UNION ALL\
+SELECT \
+	GroupNo, StudentID, 'random' AS AssignType\
+FROM step6_cte\
+)\
+SELECT /* ++A20538828++HW3 */ \
+	cg.GroupNo, cg.StudentID, cg.AssignType, cr.Firstname, cr.Lastname, cr.Email\
+FROM CombinedGroups cg\
+JOIN class_roster cr ON cg.StudentID = cr.StudentID\
+ORDER BY cg.GroupNo, cg.AssignType, cg.StudentID
+2024-02-25 20:04:30.260209	root[root] @ localhost [::1]	22	1	Query	WITH UnassignedStudents AS (\
+    SELECT /* ++A20538828++HW3 */ \
+	cr.StudentID, ROW_NUMBER() OVER (ORDER BY RAND()) AS AllocationID\
+    FROM class_roster cr\
+    LEFT JOIN (\
+        SELECT \
+		StudentID1 AS StudentID FROM self_formed_group\
+        UNION\
+        SELECT \
+		StudentID2 FROM self_formed_group\
+        UNION\
+        SELECT \
+		StudentID3 FROM self_formed_group\
+    ) AS sfg ON cr.StudentID = sfg.StudentID\
+    WHERE Sfg.StudentID IS NULL\
+),\
+AvailableSlots AS (\
+    WITH StudentProjectGroups AS (\
+        SELECT \
+		GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '1') AS SeatNumber, StudentID1 AS StudentID\
+        FROM self_formed_group\
+        UNION ALL\
+        SELECT \
+		GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '2') AS SeatNumber, StudentID2\
+        FROM self_formed_group\
+        UNION ALL\
+        SELECT \
+		GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '3') AS SeatNumber, StudentID3\
+        FROM self_formed_group\
+    )\
+    SELECT \
+	GroupNo, SeatNumber, ROW_NUMBER() OVER (ORDER BY SeatNumber) AS AllocationID\
+    FROM StudentProjectGroups\
+    WHERE StudentID IS NULL\
+)\
+SELECT /* ++A20538828++HW3 */ \
+    AvailableSlots.GroupNo, AvailableSlots.SeatNumber, UnassignedStudents.StudentID\
+FROM AvailableSlots AvailableSlots\
+JOIN UnassignedStudents UnassignedStudents ON AvailableSlots.AllocationID = UnassignedStudents.AllocationID
+2024-02-25 19:53:05.769823	root[root] @ localhost [::1]	22	1	Query	WITH RankedStudents AS (\
+    SELECT /* ++A20538828++HW3 */\
+        GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '1') AS SeatNumber, StudentID1 AS StudentID,\
+        ROW_NUMBER() OVER (ORDER BY RAND()) AS AllocationID\
+    FROM self_formed_group\
+    WHERE StudentID1 IS NULL\
+    UNION ALL\
+\
+    SELECT \
+        GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '2') AS SeatNumber, StudentID2 AS StudentID,\
+        ROW_NUMBER() OVER (ORDER BY RAND()) AS AllocationID\
+    FROM self_formed_group\
+    WHERE StudentID2 IS NULL\
+    UNION ALL\
+\
+    SELECT \
+        GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '3') AS SeatNumber, StudentID3 AS StudentID,\
+        ROW_NUMBER() OVER (ORDER BY RAND()) AS AllocationID\
+    FROM self_formed_group\
+    WHERE StudentID3 IS NULL\
+)\
+SELECT /* ++A20538828++HW3 */ \
+    GroupNo, SeatNumber, StudentID,\
+    ROW_NUMBER() OVER (ORDER BY RAND()) AS UniqueAllocationID\
+FROM RankedStudents
+2024-02-25 19:46:47.510713	root[root] @ localhost [::1]	22	1	Query	SELECT /* ++A20538828++HW3 */ \
+    cr.studentid, ROW_NUMBER() OVER (ORDER BY RAND()) AS AllocationID\
+FROM class_roster cr\
+LEFT JOIN\
+    (\
+        SELECT \
+            GroupNo, StudentID1 AS StudentID\
+        FROM self_formed_group\
+        UNION ALL\
+\
+        SELECT \
+            GroupNo, StudentID2 AS StudentID\
+        FROM self_formed_group\
+        UNION ALL\
+\
+        SELECT \
+            GroupNo, StudentID3 AS StudentID\
+        FROM self_formed_group\
+    ) sfg ON cr.studentid = sfg.StudentID\
+WHERE\
+    sfg.GroupNo IS NULL LIMIT 0, 1000
+2024-02-25 19:39:37.958415	root[root] @ localhost [::1]	22	1	Query	SELECT /* ++A20538828++HW3 */  \
+    GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '1') AS SeatNumber, StudentID1 AS StudentID\
+FROM self_formed_group\
+WHERE StudentID1 IS NOT NULL\
+UNION ALL\
+\
+SELECT /* ++A20538828++HW3 */ \
+    GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '2') AS SeatNumber, StudentID2 AS StudentID\
+FROM self_formed_group\
+WHERE StudentID2 IS NOT NULL\
+UNION ALL\
+\
+SELECT /* ++A20538828++HW3 */ \
+    GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '3') AS SeatNumber, StudentID3 AS StudentID\
+FROM self_formed_group\
+WHERE StudentID3 IS NOT NULL LIMIT 0, 1000
+2024-02-25 19:32:23.600003	root[root] @ localhost [::1]	22	1	Query	WITH StudentProjectCounts AS (\
+    SELECT /* ++A20538828++HW3 */ \
+        StudentID1 AS StudentID, GroupNo\
+    FROM self_formed_group\
+    UNION ALL\
+    SELECT \
+        StudentID2 AS StudentID, GroupNo\
+    FROM self_formed_group\
+    UNION ALL\
+    SELECT \
+        StudentID3 AS StudentID, GroupNo\
+    FROM self_formed_group\
+)\
+SELECT /* ++A20538828++HW3 */ \
+	StudentID, GroupNo\
+FROM StudentProjectCounts\
+GROUP BY StudentID, GroupNo\
+HAVING COUNT(*) > 1
+2024-02-25 19:25:22.819705	root[root] @ localhost [::1]	22	1	Query	WITH GroupedStudents AS (\
+    SELECT /* ++A20538828++HW3 */ \
+        GroupNo, StudentID1 AS StudentID\
+    FROM self_formed_group\
+    UNION ALL\
+\
+    SELECT  \
+        GroupNo, StudentID2 AS StudentID\
+    FROM self_formed_group\
+    UNION ALL\
+\
+    SELECT \
+        GroupNo, StudentID3 AS StudentID\
+    FROM self_formed_group\
+)\
+\
+SELECT /* ++A20538828++HW3 */ \
+	gs.GroupNo, gs.StudentID\
+FROM GroupedStudents gs\
+LEFT JOIN class_roster cr ON gs.StudentID = cr.StudentID\
+WHERE cr.StudentID IS  NULL
+2024-02-25 19:17:04.139813	root[root] @ localhost [::1]	22	1	Query	SELECT /* ++A20538828++HW3 */ \
+    GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '1') AS SeatNumber, StudentID1 AS StudentID\
+FROM self_formed_group\
+UNION ALL\
+SELECT  \
+    GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '2') AS SeatNumber, StudentID2 AS StudentID\
+FROM self_formed_group\
+UNION ALL\
+SELECT  \
+    GroupNo, CONCAT(LPAD(GroupNo, 2, '0'), '3') AS SeatNumber, StudentID3 AS StudentID\
+FROM self_formed_group LIMIT 0, 1000

@@ -1,0 +1,318 @@
+2024-02-06 21:22:51.023561	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL059 */\
+	NAME, LOCATE('Yellow', NAME) AS "String Position" \
+FROM product\
+WHERE LOCATE('Yellow', NAME)>0 LIMIT 0, 1000
+2024-02-06 00:23:30.448362	root[root] @ localhost [::1]	11	1	Query	SELECT /* ++A20538828 ++SQL060 */\
+	CONCAT_WS(', ', NAME, '   color:-',color,' Product Number:', productnumber ) AS result, color\
+FROM product LIMIT 0, 1000
+2024-02-06 00:21:31.899322	root[root] @ localhost [::1]	11	1	Query	SELECT /* ++A20538828 ++SQL051 */\
+	NAME, locate('Yellow', name) AS "String Position" \
+FROM product\
+WHERE locate('Yellow', name)>0 LIMIT 0, 1000
+2024-02-06 00:02:12.056531	root[root] @ localhost [::1]	11	1	Query	SELECT /* ++A20538828 ++SQL051 */ *  \
+FROM SalesOrderHeader AS soh  \
+INNER JOIN SalesOrderDetail AS sod \
+    ON soh.SalesOrderID = sod.SalesOrderID   \
+WHERE soh.TotalDue > 100  \
+AND (sod.OrderQty > 5 OR sod.unitpricediscount < 1000.00) LIMIT 0, 1000
+2024-02-06 00:00:03.587656	root[root] @ localhost [::1]	11	1	Query	SELECT /* ++A20538828 ++SQL050 */\
+	JobTitle, HireDate  \
+FROM Employee\
+ORDER BY HireDate DESC\
+LIMIT 20
+2024-02-05 23:49:41.769012	root[root] @ localhost [::1]	11	1	Query	SELECT /* ++A20538828 ++SQL049 */\
+	AddressLine1, AddressLine2, City, PostalCode, CountryRegionCode    \
+FROM Address AS a  \
+JOIN StateProvince AS s ON a.StateProvinceID = s.StateProvinceID  \
+WHERE CountryRegionCode NOT IN ('US')  \
+AND City LIKE 'Pa%' LIMIT 0, 1000
+2024-02-05 23:45:41.431589	root[root] @ localhost [::1]	11	1	Query	WITH SalesData (SalesPersonID, NumberOfOrders)\
+AS\
+(\
+    SELECT /* ++A20538828 ++SQL047 */\
+	SalesPersonID, COUNT(*)\
+    FROM SalesOrderHeader\
+    WHERE SalesPersonID IS NOT NULL\
+    GROUP BY SalesPersonID\
+)\
+SELECT AVG(NumberOfOrders) AS "Average Sales Per Person"\
+FROM SalesData
+2024-02-05 23:36:17.523618	root[root] @ localhost [::1]	11	1	Query	WITH SalesData (SalesPersonID, SalesOrderID, SalesYear)\
+AS\
+(\
+    SELECT /* ++A20538828 ++SQL046 */\
+    SalesPersonID, SalesOrderID, extract(year from OrderDate) AS SalesYear\
+    FROM SalesOrderHeader\
+    WHERE SalesPersonID IS NOT NULL\
+)\
+SELECT SalesPersonID, COUNT(SalesOrderID) AS TotalSales, SalesYear\
+FROM SalesData\
+GROUP BY SalesYear, SalesPersonID\
+ORDER BY SalesPersonID, SalesYear
+2024-02-05 23:34:07.747986	root[root] @ localhost [::1]	11	1	Query	WITH SalesData (SalesPersonID, SalesOrderID, SalesYear)\
+AS\
+(\
+    SELECT /* ++A20538828 ++SQL046 */\
+    SalesPersonID, SalesOrderID, Date_PART('year', OrderDate) AS SalesYear\
+    FROM SalesOrderHeader\
+    WHERE SalesPersonID IS NOT NULL\
+)\
+SELECT SalesPersonID, COUNT(SalesOrderID) AS TotalSales, SalesYear\
+FROM SalesData\
+GROUP BY SalesYear, SalesPersonID\
+ORDER BY SalesPersonID, SalesYear
+2024-02-05 23:14:40.906007	root[root] @ localhost [::1]	11	1	Query	SELECT /* ++A20538828 ++SQL044 */\
+	businessentityid, firstname,LastName  \
+FROM person \
+WHERE businessentityid <= 1500 AND LastName LIKE '%Al%' AND FirstName LIKE '%M%' LIMIT 0, 1000
+2024-02-05 23:11:22.498536	root[root] @ localhost [::1]	11	1	Query	SELECT /* ++A20538828 ++SQL043 */\
+businessentityid, firstname,lastname  \
+FROM (SELECT * FROM person WHERE persontype = 'IN') AS personDerivedTable \
+WHERE lastname = 'Adams'  \
+ORDER BY firstname LIMIT 0, 1000
+2024-02-05 23:00:37.720339	root[root] @ localhost [::1]	11	1	Query	SELECT /* ++A20538828 ++SQL042 */\
+	CONCAT(RTRIM(p.FirstName),' ', LTRIM(p.LastName)) AS Full_Name, a.City  \
+FROM Person AS p  \
+INNER JOIN Employee e ON p.BusinessEntityID = e.BusinessEntityID   \
+INNER JOIN BusinessEntityAddress AS bea ON p.BusinessEntityID = bea.BusinessEntityID\
+INNER JOIN Address AS a ON bea.AddressID = a.AddressID\
+ORDER BY p.LastName, p.FirstName LIMIT 0, 1000
+2024-02-05 22:52:27.342256	root[root] @ localhost [::1]	11	1	Query	SELECT /* ++A20538828 ++SQL041 */\
+	t.Name AS Territory, p.BusinessEntityID  \
+FROM SalesTerritory AS t   \
+RIGHT OUTER JOIN SalesPerson AS p  \
+ON t.TerritoryID = p.TerritoryID  LIMIT 0, 1000
+2024-01-28 20:03:27.097784	root[root] @ localhost [::1]	8	1	Query	-- 033\
+SELECT /* ++A20538828 ++SQL033 */\
+    sp.BusinessEntityID, p.LastName, st.Name AS TerritoryName, c.Name AS CountryRegionName\
+FROM COUNTRYREGION AS c \
+INNER JOIN SalesTERRITORY AS st ON c.CountryRegionCode = st.CountryRegionCode\
+INNER JOIN SALESPERSON AS sp ON st.TerritoryID = sp.TerritoryID \
+INNER JOIN PERSON AS p ON p.BusinessEntityID = sp.BusinessEntityID\
+WHERE sp.TerritoryID IS NOT NULL  \
+ORDER BY \
+    CASE \
+        WHEN c.CountryRegionCode = 'United States' THEN st.Name\
+        ELSE c.CountryRegionCode END LIMIT 0, 1000
+2024-01-28 19:52:14.372512	root[root] @ localhost [::1]	8	1	Query	SELECT /* ++A20538828 ++SQL040 */\
+	p.Name, sod.SalesOrderID  \
+FROM Product AS p  \
+INNER JOIN SalesOrderDetail AS sod  \
+ON p.ProductID = sod.ProductID  \
+ORDER BY p.Name  LIMIT 0, 1000
+2024-01-28 19:41:32.012088	root[root] @ localhost [::1]	8	1	Query	SELECT /* ++A20538828 ++SQL039 */\
+	p.Name, sod.SalesOrderID  \
+FROM Product AS p  \
+LEFT OUTER JOIN SalesOrderDetail AS sod  \
+ON p.ProductID = sod.ProductID  \
+ORDER BY p.Name  LIMIT 0, 1000
+2024-01-28 19:31:36.259897	root[root] @ localhost [::1]	8	1	Query	SELECT /* ++A20538828 ++SQL038 */\
+    p.Name, sod.SalesOrderID\
+FROM Product AS p\
+LEFT JOIN SalesOrderDetail AS sod ON p.ProductID = sod.ProductID\
+UNION\
+SELECT \
+    NULL AS Name, sod.SalesOrderID\
+FROM SalesOrderDetail AS sod\
+WHERE sod.ProductID IS NULL\
+UNION\
+SELECT \
+    p.Name, NULL AS SalesOrderID\
+FROM Product AS p\
+RIGHT JOIN SalesOrderDetail AS sod ON p.ProductID = sod.ProductID\
+WHERE p.ProductID IS NULL\
+ORDER BY Name LIMIT 0, 1000
+2024-01-28 19:17:18.061428	root[root] @ localhost [::1]	8	1	Query	SELECT /* ++A20538828 ++SQL037 */\
+Name, Color, ListPrice  \
+FROM Product  \
+WHERE Color = 'Red'  \
+UNION ALL  \
+SELECT Name, Color, ListPrice  \
+FROM Product  \
+WHERE Color = 'Blue'  \
+ORDER BY ListPrice ASC LIMIT 0, 1000
+2024-01-28 19:13:22.644003	root[root] @ localhost [::1]	8	1	Query	SELECT /* ++A20538828 ++SQL036 */\
+	DepartmentID, Name, GroupName  \
+FROM Department  \
+ORDER BY DepartmentID   \
+    Limit 5, 5
+2024-01-28 19:04:57.121884	root[root] @ localhost [::1]	8	1	Query	SELECT /* ++A20538828 ++SQL035 */\
+	DepartmentID, Name, GroupName  \
+FROM Department  \
+ORDER BY DepartmentID Limit 10, 20
+2024-01-28 18:30:19.365615	root[root] @ localhost [::1]	8	1	Query	SELECT /* ++A20538828 ++SQL033 */\
+	BusinessEntityID, LastName, TerritoryName, CountryRegionName  \
+FROM SalesPerson  \
+WHERE TerritoryName IS NOT NULL  \
+ORDER BY CASE CountryRegionName WHEN 'United States' THEN TerritoryName  \
+         ELSE CountryRegionName END LIMIT 0, 1000
+2024-01-28 18:10:56.509037	root[root] @ localhost [::1]	8	1	Query	SELECT /* ++A20538828 ++SQL032 */\
+	BusinessEntityID, SalariedFlag  \
+FROM Employee  \
+ORDER BY CASE SalariedFlag WHEN 'true' THEN BusinessEntityID END DESC  \
+        ,CASE WHEN SalariedFlag ='false' THEN BusinessEntityID END LIMIT 0, 1000
+2024-01-28 18:05:56.192841	root[root] @ localhost [::1]	8	1	Query	SELECT /* ++A20538828 ++SQL031 */\
+	LastName, FirstName \
+FROM Person  \
+WHERE LastName LIKE 'R%'  \
+ORDER BY FirstName ASC, LastName DESC LIMIT 0, 1000
+2024-01-28 18:02:25.987897	root[root] @ localhost [::1]	8	1	Query	SELECT /* ++A20538828 ++SQL030 */\
+    BusinessEntityID, JobTitle, HireDate\
+FROM Employee\
+ORDER BY \
+    YEAR(HireDate), \
+    BusinessEntityID LIMIT 0, 1000
+2024-01-28 17:47:15.054076	root[root] @ localhost [::1]	8	1	Query	SELECT /* ++A20538828 ++SQL030 */\
+	BusinessEntityID, JobTitle, HireDate  \
+FROM Employee  \
+ORDER BY DATE_PART('year',HireDate) LIMIT 0, 1000
+2024-01-28 17:41:35.322149	root[root] @ localhost [::1]	8	1	Query	SELECT /* ++A20538828 ++SQL029 */\
+	ProductID, Name, Color  \
+FROM Product  \
+ORDER BY ListPrice LIMIT 0, 1000
+2024-01-28 17:39:40.672834	root[root] @ localhost [::1]	8	1	Query	SELECT /* ++A20538828 ++SQL028 */\
+	ProductID, Name \
+FROM Product  \
+WHERE Name LIKE 'Lock Washer%'  \
+ORDER BY ProductID LIMIT 0, 1000
+2024-01-28 17:37:31.359182	root[root] @ localhost [::1]	8	1	Query	SELECT /* ++A20538828 ++SQL027 */\
+	SalesOrderID, SUM(orderqty*unitprice) AS OrderIDCost  \
+FROM SalesOrderDetail  \
+GROUP BY SalesOrderID  \
+HAVING SUM(orderqty*unitprice) > 100000.00  \
+ORDER BY SalesOrderID LIMIT 0, 1000
+2024-01-28 17:32:15.516367	root[root] @ localhost [::1]	8	1	Query	SELECT /* ++A20538828 ++SQL023 */\
+    DATE_FORMAT(hur.RateChangeDate, '%Y-%m-%d') AS FromDate,\
+    CONCAT_WS(', ', per.LastName, per.FirstName, per.MiddleName) AS NameInFull,\
+    (40 * hur.Rate) AS SalaryInAWeek\
+FROM \
+    Person AS per\
+INNER JOIN \
+    EmployeePayHistory AS hur ON hur.BusinessEntityID = per.BusinessEntityID      \
+ORDER BY \
+    NameInFull LIMIT 0, 1000
+2024-01-28 17:14:23.116357	root[root] @ localhost [::1]	8	1	Query	SELECT /* ++A20538828 ++SQL022 */\
+    bec.ContactTypeID,\
+    ct.Name AS CTypeName,\
+    COUNT(*) AS NUMcontacts\
+FROM BusinessEntityContact AS bec\
+INNER JOIN ContactType AS ct ON ct.ContactTypeID = bec.ContactTypeID\
+GROUP BY bec.ContactTypeID, ct.Name\
+HAVING NUMcontacts >= 100\
+ORDER BY NUMcontacts DESC LIMIT 0, 1000
+2024-01-21 18:22:21.769630	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL008 */\
+customerid, salespersonid,\
+    AVG(subtotal) AS average_subtotal,\
+    SUM(subtotal) AS total_subtotal\
+FROM salesorderheader\
+GROUP BY customerid, salespersonid\
+ORDER BY customerid DESC LIMIT 0, 1000
+2024-01-21 18:06:33.943424	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL020 */\
+    p.BusinessEntityID,\
+    p.LastName,\
+    p.FirstName\
+FROM adventureworks.businessentitycontact AS b \
+INNER JOIN \
+    adventureworks.ContactType AS c ON c.ContactTypeID = b.ContactTypeID\
+INNER JOIN \
+    adventureworks.Person AS p ON p.BusinessEntityID = b.BusinessEntityID\
+WHERE c.Name = 'Purchasing Manager'\
+ORDER BY p.LastName, p.FirstName LIMIT 0, 1000
+2024-01-21 18:03:18.148523	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL020 */\
+p.BusinessEntityID, LastName, FirstName\
+FROM adventureworks.businessentitycontact AS b \
+INNER JOIN adventureworks.ContactType AS c\
+ON c.ContactTypeID = b.ContactTypeID\
+INNER JOIN adventureworks.Person AS p\
+ON p.BusinessEntityID = p.PersonID\
+    WHERE c.Name = 'Purchasing Manager'\
+    ORDER BY LastName, FirstName LIMIT 0, 1000
+2024-01-21 17:57:01.202439	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL019 */\
+    ContactTypeID, name\
+FROM contacttype\
+WHERE Name Like '%Manager%'\
+ORDER BY name DESC LIMIT 0, 1000
+2024-01-21 17:54:21.190026	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL019 */\
+    ContactTypeID, name\
+FROM contacttype\
+WHERE designation = 'Manager'\
+ORDER BY name DESC LIMIT 0, 1000
+2024-01-21 17:44:53.448850	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL018 */\
+    YEAR(orderdate) AS order_year,\
+    SUM(totaldue) AS total_due_amount\
+FROM salesorderheader\
+WHERE YEAR(orderdate) <= 2016\
+GROUP BY YEAR(orderdate)\
+ORDER BY order_year LIMIT 0, 1000
+2024-01-21 17:40:40.928950	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL017 */\
+    YEAR(orderdate) AS order_year,\
+    SUM(totaldue) AS total_due_amount\
+FROM salesorderheader\
+GROUP BY YEAR(orderdate)\
+ORDER BY order_year LIMIT 0, 1000
+2024-01-21 17:35:10.367554	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL016 */\
+    a.city, COUNT(b.AddressID) AS number_of_employees\
+FROM businessentityaddress As b\
+Inner join Address AS a\
+ON b.AddressID = a.AddressID\
+GROUP BY a.city\
+ORDER BY a.city LIMIT 0, 1000
+2024-01-21 17:28:46.133744	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL011 */\
+p.BusinessEntityID, FirstName, LastName, PhoneNumber as PersonPhone\
+FROM Person AS p\
+JOIN PersonPhone ph \
+ON p.BusinessEntityID = ph.BusinessEntityID\
+WHERE p.LastName LIKE 'L%'\
+ORDER BY p.LastName, p.FirstName LIMIT 0, 1000
+2024-01-21 17:24:03.801446	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL009 */\
+productid, SUM(quantity) AS total_quantity\
+FROM productinventory\
+WHERE shelf IN ('A', 'C', 'H')\
+GROUP BY productid\
+HAVING SUM(quantity) > 500\
+ORDER BY productid LIMIT 0, 1000
+2024-01-21 17:23:43.358441	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL009 */\
+productid, SUM(quantity) AS total_quantity\
+FROM productinventory\
+WHERE shelf IN (A, C, H)\
+GROUP BY productid\
+HAVING SUM(quantity) > 500\
+ORDER BY productid LIMIT 0, 1000
+2024-01-21 17:21:21.045317	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL009 */\
+customerid, salespersonid,\
+    AVG(subtotal) AS average_subtotal,\
+    SUM(subtotal) AS total_subtotal\
+FROM salesorderheader\
+GROUP BY customerid, salespersonid\
+ORDER BY customerid DESC LIMIT 0, 1000
+2024-01-21 17:18:32.197809	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL007 */\
+customerid, SUM(freight) AS total_freight\
+FROM salesorderheader\
+GROUP BY customerid\
+ORDER BY customerid LIMIT 0, 1000
+2024-01-21 17:14:06.320192	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL006 */\
+DISTINCT jobtitle\
+FROM employee\
+ORDER BY jobtitle LIMIT 0, 1000
+2024-01-21 17:11:57.820982	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL005 */\
+salesorderid, customerid, orderdate, subtotal,\
+    (taxamt / subtotal) * 100 AS tax_percentage\
+FROM salesorderheader\
+ORDER BY subtotal LIMIT 0, 1000
+2024-01-21 17:03:38.523022	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL004 */\
+productid, productnumber, Name\
+FROM product\
+WHERE sellstartdate IS NOT NULL AND productline = 'T'\
+ORDER BY name LIMIT 0, 1000
+2024-01-21 17:01:17.590781	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL003 */\
+FirstName, LastName, businessentityid AS Employee_id\
+FROM person\
+ORDER BY LastName LIMIT 0, 1000
+2024-01-21 16:59:31.962694	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL002 */\
+e.*  \
+FROM person AS e  \
+ORDER BY LastName LIMIT 0, 1000
+2024-01-21 14:25:38.781285	root[root] @ localhost [::1]	12	1	Query	SELECT /* ++A20538828 ++SQL001 */\
+*\
+FROM employee\
+ORDER BY jobtitle LIMIT 0, 1000
